@@ -1,6 +1,6 @@
 # Built application files
-*.apk
 *.ap_
+*.apk
 
 # Files for the ART/Dalvik VM
 *.dex
@@ -35,6 +35,5 @@ captures/
 # Intellij
 *.iml
 .idea/workspace.xml
-
-# Keystore files
-*.jks
+dea/tasks.xml
+.idea/libraries/
