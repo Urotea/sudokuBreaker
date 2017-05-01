@@ -1,8 +1,7 @@
 package dev.urotea.sudokubreaker;
 
-import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+
+import android.util.TypedValue;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -14,8 +13,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.GridLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
 
@@ -78,7 +79,7 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         sudokuList = new ArrayList<>();
-        for(int i=0;i<SUDOKU_COL * SUDOKU_ROW; i+=1) {
+        for (int i = 0; i < SUDOKU_COL * SUDOKU_ROW; i += 1) {
             sudokuList.add(new TextView(this));
         }
         sudokuAreaList = new ArrayList<>();
@@ -93,11 +94,18 @@ public class MainActivity extends AppCompatActivity
         sudokuAreaList.add(right_bottom);
 
         int row = 0, col = 0, areaCount = 0;
-        for(TextView textView : sudokuList) {
-            textView.setText(row+","+col);
+        for (TextView textView : sudokuList) {
+            textView.setText(row + "," + col);
             textView.setLayoutParams(new GridLayout.LayoutParams(
                     GridLayout.spec(row), GridLayout.spec(col)
             ));
+            textView.setTextSize(10);
+            // setWidthはpixelなのでdipに変換する
+            textView.setWidth((int) TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP, 36, getResources().getDisplayMetrics()));
+            textView.setHeight((int) TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP, 36, getResources().getDisplayMetrics()));
+            textView.setBackgroundResource(R.drawable.simple_frame);
             sudokuAreaList.get(areaCount).addView(textView);
             col += 1;
             col %= 3;
@@ -105,6 +113,18 @@ public class MainActivity extends AppCompatActivity
             row %= 3;
             areaCount = (col == 0 && row == 0) ? areaCount + 1 : areaCount;
         }
+        // Gridレイアウトにタグを設定し、後で判別可能に
+        for(int i=0;i<sudokuAreaList.size();i+=1) {
+            sudokuAreaList.get(i).setTag(i);
+        }
+    }
+
+    @Click({R.id.left_up, R.id.middle_up, R.id.right_up,
+            R.id.left_middle, R.id.middle_middle, R.id.right_middle,
+            R.id.left_bottom, R.id.middle_bottom, R.id.right_bottom})
+    void layoutsClicked(View v) {
+        Toast.makeText(this, v.getTag().toString(), Toast.LENGTH_SHORT).show();
+
     }
 
     @Override
