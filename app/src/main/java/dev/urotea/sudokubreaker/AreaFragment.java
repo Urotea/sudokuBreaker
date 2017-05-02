@@ -13,15 +13,6 @@ import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
 
-
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link AreaFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link AreaFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 @EFragment(R.layout.fragment_area)
 public class AreaFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match

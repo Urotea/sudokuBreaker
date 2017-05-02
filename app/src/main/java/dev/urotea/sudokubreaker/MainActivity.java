@@ -76,6 +76,7 @@ public class MainActivity extends AppCompatActivity
     Button calcButton;
 
     private FragmentTransaction transaction = null;
+    private AreaFragment fragment = null;
 
     @AfterViews
     void init() {
@@ -132,10 +133,11 @@ public class MainActivity extends AppCompatActivity
             R.id.left_bottom, R.id.middle_bottom, R.id.right_bottom})
     void layoutsClicked(View v) {
         if(transaction != null && !transaction.isEmpty()) return;
-        AreaFragment fragment = AreaFragment.newInstance("test", "test2");
+        fragment = AreaFragment.newInstance("test", "test2");
         transaction = getFragmentManager().beginTransaction();
         transaction.replace(R.id.content_main, fragment)
                 .addToBackStack(null).commit();
+        calcButton.setVisibility(View.INVISIBLE);
     }
 
     @Click(R.id.calc_button)
@@ -151,6 +153,7 @@ public class MainActivity extends AppCompatActivity
             return;
         }
         transaction = null;
+        calcButton.setVisibility(View.VISIBLE);
         super.onBackPressed();
 
     }
@@ -189,6 +192,8 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onClickSubmitButton() {
-        Toast.makeText(this, "pushed!", Toast.LENGTH_SHORT).show();
+        getFragmentManager().popBackStack();
+        calcButton.setVisibility(View.VISIBLE);
+        transaction = null;
     }
 }
