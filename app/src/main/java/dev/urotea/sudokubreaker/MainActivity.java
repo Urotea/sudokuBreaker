@@ -1,6 +1,7 @@
 package dev.urotea.sudokubreaker;
 
 
+import android.app.FragmentTransaction;
 import android.util.TypedValue;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -11,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
 import android.widget.GridLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -25,7 +27,8 @@ import java.util.List;
 
 @EActivity(R.layout.activity_main)
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener,
+        AreaFragment.OnFragmentInteractionListener {
     private final static int SUDOKU_COL = 9;
     private final static int SUDOKU_ROW = 9;
     private final static int SUDOKU_AREA = 9;
@@ -68,6 +71,11 @@ public class MainActivity extends AppCompatActivity
 
     @ViewById
     GridLayout right_bottom;
+
+    @ViewById(R.id.calc_button)
+    Button calcButton;
+
+    private FragmentTransaction transaction = null;
 
     @AfterViews
     void init() {
@@ -123,8 +131,16 @@ public class MainActivity extends AppCompatActivity
             R.id.left_middle, R.id.middle_middle, R.id.right_middle,
             R.id.left_bottom, R.id.middle_bottom, R.id.right_bottom})
     void layoutsClicked(View v) {
-        Toast.makeText(this, v.getTag().toString(), Toast.LENGTH_SHORT).show();
+        if(transaction != null && !transaction.isEmpty()) return;
+        AreaFragment fragment = AreaFragment.newInstance("test", "test2");
+        transaction = getFragmentManager().beginTransaction();
+        transaction.replace(R.id.content_main, fragment)
+                .addToBackStack(null).commit();
+    }
 
+    @Click(R.id.calc_button)
+    void calcButtonClicked() {
+        Toast.makeText(this, "計算開始", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -132,9 +148,11 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
+            return;
         }
+        transaction = null;
+        super.onBackPressed();
+
     }
 
     @Override
@@ -167,5 +185,10 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public void onClickSubmitButton() {
+        Toast.makeText(this, "pushed!", Toast.LENGTH_SHORT).show();
     }
 }
