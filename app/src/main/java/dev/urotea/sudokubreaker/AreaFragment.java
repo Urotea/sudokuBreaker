@@ -7,11 +7,17 @@ import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
 
+import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EFragment;
 import org.androidannotations.annotations.ViewById;
+import org.androidannotations.annotations.ViewsById;
+
+import java.util.List;
 
 @EFragment(R.layout.fragment_area)
 public class AreaFragment extends Fragment {
@@ -26,6 +32,11 @@ public class AreaFragment extends Fragment {
 
     @ViewById(R.id.submit_button)
     Button submitButton;
+
+    @ViewsById({R.id.sp_left_up, R.id.sp_middle_up, R.id.sp_right_up,
+                R.id.sp_left_middle, R.id.sp_middle_middle, R.id.sp_right_middle,
+                R.id.sp_left_bottom, R.id.sp_middle_bottom, R.id.sp_right_bottom})
+    List<Spinner> spinnerList;
 
     private OnFragmentInteractionListener mListener;
 
@@ -57,6 +68,16 @@ public class AreaFragment extends Fragment {
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
+        }
+    }
+
+    @AfterViews
+    void init() {
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this.getActivity(),
+                R.layout.spinner_item, getResources().getStringArray(R.array.input_list));
+        adapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        for(Spinner spinner : spinnerList) {
+            spinner.setAdapter(adapter);
         }
     }
 

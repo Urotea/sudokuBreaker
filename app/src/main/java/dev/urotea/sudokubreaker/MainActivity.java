@@ -3,6 +3,7 @@ package dev.urotea.sudokubreaker;
 
 import android.app.FragmentTransaction;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -21,6 +22,7 @@ import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Click;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
+import org.androidannotations.annotations.ViewsById;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +35,12 @@ public class MainActivity extends AppCompatActivity
     private final static int SUDOKU_ROW = 9;
     private final static int SUDOKU_AREA = 9;
 
+    @ViewsById({R.id.left_up, R.id.middle_up, R.id.right_up,
+                R.id.left_middle, R.id.middle_middle, R.id.right_middle,
+                R.id.left_bottom, R.id.middle_bottom, R.id.right_bottom})
+    List<GridLayout> sudokuAreaList;
+
     private List<TextView> sudokuList;
-    private List<GridLayout> sudokuAreaList;
 
     @ViewById(R.id.toolbar)
     Toolbar toolbar;
@@ -44,33 +50,6 @@ public class MainActivity extends AppCompatActivity
 
     @ViewById(R.id.nav_view)
     NavigationView navigationView;
-
-    @ViewById
-    GridLayout left_up;
-
-    @ViewById
-    GridLayout middle_up;
-
-    @ViewById
-    GridLayout right_up;
-
-    @ViewById
-    GridLayout left_middle;
-
-    @ViewById
-    GridLayout middle_middle;
-
-    @ViewById
-    GridLayout right_middle;
-
-    @ViewById
-    GridLayout left_bottom;
-
-    @ViewById
-    GridLayout middle_bottom;
-
-    @ViewById
-    GridLayout right_bottom;
 
     @ViewById(R.id.calc_button)
     Button calcButton;
@@ -91,16 +70,6 @@ public class MainActivity extends AppCompatActivity
         for (int i = 0; i < SUDOKU_COL * SUDOKU_ROW; i += 1) {
             sudokuList.add(new TextView(this));
         }
-        sudokuAreaList = new ArrayList<>();
-        sudokuAreaList.add(left_up);
-        sudokuAreaList.add(middle_up);
-        sudokuAreaList.add(right_up);
-        sudokuAreaList.add(left_middle);
-        sudokuAreaList.add(middle_middle);
-        sudokuAreaList.add(right_middle);
-        sudokuAreaList.add(left_bottom);
-        sudokuAreaList.add(middle_bottom);
-        sudokuAreaList.add(right_bottom);
 
         int row = 0, col = 0, areaCount = 0;
         for (TextView textView : sudokuList) {
@@ -108,7 +77,9 @@ public class MainActivity extends AppCompatActivity
             textView.setLayoutParams(new GridLayout.LayoutParams(
                     GridLayout.spec(row), GridLayout.spec(col)
             ));
-            textView.setTextSize(10);
+            textView.setTextSize(20);
+            textView.setGravity(Gravity.CENTER);
+
             // setWidthはpixelなのでdipに変換する
             textView.setWidth((int) TypedValue.applyDimension(
                     TypedValue.COMPLEX_UNIT_DIP, 36, getResources().getDisplayMetrics()));
