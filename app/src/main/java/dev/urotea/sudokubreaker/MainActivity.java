@@ -27,6 +27,9 @@ import org.androidannotations.annotations.ViewsById;
 import java.util.ArrayList;
 import java.util.List;
 
+import dev.urotea.sudokubreaker.Fragment.AreaFragment;
+import dev.urotea.sudokubreaker.Model.AreaModel;
+
 @EActivity(R.layout.activity_main)
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -40,6 +43,10 @@ public class MainActivity extends AppCompatActivity
                 R.id.left_bottom, R.id.middle_bottom, R.id.right_bottom})
     List<GridLayout> sudokuAreaList;
 
+    /** それぞれのエリアで保持しているデータと、エリアのタグのリスト */
+    private List<AreaModel> areaModelList;
+
+    /** 描画しているすべてのTextViewを格納したリスト*/
     private List<TextView> sudokuList;
 
     @ViewById(R.id.toolbar)
@@ -54,7 +61,10 @@ public class MainActivity extends AppCompatActivity
     @ViewById(R.id.calc_button)
     Button calcButton;
 
+    /** Fragmentを管理する変数*/
     private FragmentTransaction transaction = null;
+
+    /** 現在表示しているフラグメント*/
     private AreaFragment fragment = null;
 
     @AfterViews
@@ -71,9 +81,14 @@ public class MainActivity extends AppCompatActivity
             sudokuList.add(new TextView(this));
         }
 
+        // それぞれのエリアの内容と識別子を作成
+        areaModelList = new ArrayList<>();
+        for(int i=0;i<SUDOKU_AREA; i+=1) {
+            areaModelList.add(new AreaModel());
+        }
+
         int row = 0, col = 0, areaCount = 0;
         for (TextView textView : sudokuList) {
-            textView.setText(row + "," + col);
             textView.setLayoutParams(new GridLayout.LayoutParams(
                     GridLayout.spec(row), GridLayout.spec(col)
             ));
@@ -87,6 +102,7 @@ public class MainActivity extends AppCompatActivity
                     TypedValue.COMPLEX_UNIT_DIP, 36, getResources().getDisplayMetrics()));
             textView.setBackgroundResource(R.drawable.simple_frame);
             sudokuAreaList.get(areaCount).addView(textView);
+            areaModelList.get(areaCount).addList("");
             col += 1;
             col %= 3;
             row = col == 0 ? row + 1 : row;
@@ -96,6 +112,7 @@ public class MainActivity extends AppCompatActivity
         // Gridレイアウトにタグを設定し、後で判別可能に
         for(int i=0;i<sudokuAreaList.size();i+=1) {
             sudokuAreaList.get(i).setTag(i);
+            areaModelList.get(i).setTag(i);
         }
     }
 
@@ -104,7 +121,9 @@ public class MainActivity extends AppCompatActivity
             R.id.left_bottom, R.id.middle_bottom, R.id.right_bottom})
     void layoutsClicked(View v) {
         if(transaction != null && !transaction.isEmpty()) return;
-        fragment = AreaFragment.newInstance("test", "test2");
+
+        fragment = AreaFragment.newInstance(areaModelList.get(
+                Integer.parseInt(v.getTag().toString())));
         transaction = getFragmentManager().beginTransaction();
         transaction.replace(R.id.content_main, fragment)
                 .addToBackStack(null).commit();
@@ -162,9 +181,18 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onClickSubmitButton() {
+    public void onClickSubmitButton(AreaModel areaModel) {
         getFragmentManager().popBackStack();
         calcButton.setVisibility(View.VISIBLE);
         transaction = null;
+        setModeltoUI(areaModel);
+    }
+
+    private void setModeltoUI(AreaModel model) {
+        areaModelList.set(model.getTag(), model);
+        List<String> tmp = model.getList();
+        for(int i=model.getTag() * SUDOKU_AREA,j=0; i < (model.getTag() + 1)*SUDOKU_AREA;i+=1,j+=1) {
+            sudokuList.get(i).setText(tmp.get(j));
+        }
     }
 }
