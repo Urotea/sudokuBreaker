@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import dev.urotea.sudokubreaker.Fragment.AreaFragment;
+import dev.urotea.sudokubreaker.Logic.SudokuLogic;
 import dev.urotea.sudokubreaker.Model.AreaModel;
 
 @EActivity(R.layout.activity_main)
@@ -132,7 +133,12 @@ public class MainActivity extends AppCompatActivity
 
     @Click(R.id.calc_button)
     void calcButtonClicked() {
-        Toast.makeText(this, "計算開始", Toast.LENGTH_SHORT).show();
+        List<List<Integer>> sudokuList = convertList(areaModelList);
+        List<List<Integer>> solvedList = SudokuLogic.solve(sudokuList);
+        List<AreaModel> solvedModel = convertModel(solvedList);
+        for(AreaModel model : solvedModel) {
+            setModeltoUI(model);
+        }
     }
 
     @Override
@@ -194,5 +200,49 @@ public class MainActivity extends AppCompatActivity
         for(int i=model.getTag() * SUDOKU_AREA,j=0; i < (model.getTag() + 1)*SUDOKU_AREA;i+=1,j+=1) {
             sudokuList.get(i).setText(tmp.get(j));
         }
+    }
+
+    public static List<List<Integer>> convertList(List<AreaModel> modelList) {
+        List<List<Integer>> retVal = new ArrayList<>();
+        for(int i=0;i<SUDOKU_COL;i+=1) {
+            retVal.add(new ArrayList<Integer>());
+        }
+
+        // modelListから9*9のリストに変換する
+        for(int i=0;i<modelList.size();i+=1) {
+            int colHead = i / 3 * 3;
+            List<String> tmpList = modelList.get(i).getList();
+
+            // List<String>からList<Integer>に変換する
+            List<Integer> tmpIntegerList = new ArrayList<>();
+            for(String s : tmpList) {
+                tmpIntegerList.add(s.isEmpty() ? 0 : Integer.parseInt(s));
+            }
+
+            for(int j=0;j<tmpIntegerList.size();j+=1) {
+                int col = colHead + j / 3;
+                retVal.get(col).add(tmpIntegerList.get(j));
+            }
+        }
+        return retVal;
+    }
+
+    public static List<AreaModel> convertModel(List<List<Integer>> intList) {
+        List<AreaModel> retVal = new ArrayList<>();
+        List<List<Integer>> tmpList = SudokuLogic.extractAreaList(intList);
+        List<List<String>> stringList = new ArrayList<>();
+        for(int i=0;i<SUDOKU_AREA;i+=1) {
+            stringList.add(new ArrayList<String>());
+        }
+        for(int i=0;i<stringList.size();i+=1) {
+            List<Integer> tmp = tmpList.get(i);
+            for(int j=0;j<tmp.size();j+=1) {
+                stringList.get(i).add(tmp.get(j).toString());
+            }
+        }
+        for(int i=0;i<SUDOKU_AREA;i+=1) {
+            retVal.add(new AreaModel(i, stringList.get(i)));
+        }
+        return retVal;
     }
 }
