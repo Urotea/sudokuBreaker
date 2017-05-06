@@ -1,0 +1,73 @@
+package dev.urotea.sudokubreaker.Model;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by kakimori on 17/05/06.
+ */
+
+public class SudokuSolverModel {
+
+    private List<Integer> possibilityList;
+
+    public SudokuSolverModel() {
+        possibilityList = new ArrayList<>();
+        for(int i=1;i<10;i+=1) {
+            possibilityList.add(i);
+        }
+    }
+
+    public SudokuSolverModel(int detected) {
+        possibilityList = new ArrayList<>();
+        possibilityList.add(detected);
+    }
+
+    /**
+     * リストをセットする
+     * @param list セットしたいリスト
+     */
+    public void setList(List<Integer> list) {
+        possibilityList = list;
+    }
+
+    /**
+     * 数字が存在するかチェックする
+     * @param expectedNum チェックしたい値
+     * @return 存在するか
+     */
+    public boolean existNumber(int expectedNum) {
+        return possibilityList.contains(expectedNum);
+    }
+
+    /**
+     * 数字を削除する
+     * @param num 削除したい値
+     */
+    public void removeNum(int num) {
+        possibilityList.remove((Object)num);
+    }
+
+    /**
+     * すでに決定している値を抽出する
+     * @return 決定している場合は、その値。していない場合は0
+     */
+    public int getDetectedNum() {
+        if(possibilityList.size() > 1) return 0;
+        return  possibilityList.get(0);
+    }
+
+    public void detectNum(int num) {
+        possibilityList = new ArrayList<>();
+        possibilityList.add(num);
+    }
+
+    /**
+     * サイズを返す
+     * @return サイズ
+     */
+    public int size() {
+        return possibilityList.size();
+    }
+
+}
