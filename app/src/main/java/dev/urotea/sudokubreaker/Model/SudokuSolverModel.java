@@ -23,6 +23,32 @@ public class SudokuSolverModel {
         possibilityList.add(detected);
     }
 
+    public SudokuSolverModel(SudokuSolverModel oldModel) {
+        possibilityList = new ArrayList<>();
+        for(int val : oldModel.getList()) {
+            possibilityList.add(val);
+        }
+    }
+
+    /**
+     * 可能性listの中から一つを取り出し、それをlistから削除する
+     * @return
+     */
+    public int popList() {
+        if(possibilityList.size() == 0) return 0;
+        int retVal = possibilityList.get(0);
+        possibilityList.remove(0);
+        return retVal;
+    }
+
+    /**
+     * 保持しているリストを返す
+     * @return 保持しているリスト
+     */
+    public List<Integer> getList() {
+        return possibilityList;
+    }
+
     /**
      * リストをセットする
      * @param list セットしたいリスト
@@ -53,7 +79,7 @@ public class SudokuSolverModel {
      * @return 決定している場合は、その値。していない場合は0
      */
     public int getDetectedNum() {
-        if(possibilityList.size() > 1) return 0;
+        if(possibilityList.size() > 1 || possibilityList.size() < 1) return 0;
         return  possibilityList.get(0);
     }
 

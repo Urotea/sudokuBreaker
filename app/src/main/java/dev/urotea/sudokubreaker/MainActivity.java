@@ -40,14 +40,18 @@ public class MainActivity extends AppCompatActivity
     private final static int SUDOKU_AREA = 9;
 
     @ViewsById({R.id.left_up, R.id.middle_up, R.id.right_up,
-                R.id.left_middle, R.id.middle_middle, R.id.right_middle,
-                R.id.left_bottom, R.id.middle_bottom, R.id.right_bottom})
+            R.id.left_middle, R.id.middle_middle, R.id.right_middle,
+            R.id.left_bottom, R.id.middle_bottom, R.id.right_bottom})
     List<GridLayout> sudokuAreaList;
 
-    /** それぞれのエリアで保持しているデータと、エリアのタグのリスト */
+    /**
+     * それぞれのエリアで保持しているデータと、エリアのタグのリスト
+     */
     private List<AreaModel> areaModelList;
 
-    /** 描画しているすべてのTextViewを格納したリスト*/
+    /**
+     * 描画しているすべてのTextViewを格納したリスト
+     */
     private List<TextView> sudokuList;
 
     @ViewById(R.id.toolbar)
@@ -62,10 +66,14 @@ public class MainActivity extends AppCompatActivity
     @ViewById(R.id.calc_button)
     Button calcButton;
 
-    /** Fragmentを管理する変数*/
+    /**
+     * Fragmentを管理する変数
+     */
     private FragmentTransaction transaction = null;
 
-    /** 現在表示しているフラグメント*/
+    /**
+     * 現在表示しているフラグメント
+     */
     private AreaFragment fragment = null;
 
     @AfterViews
@@ -84,7 +92,7 @@ public class MainActivity extends AppCompatActivity
 
         // それぞれのエリアの内容と識別子を作成
         areaModelList = new ArrayList<>();
-        for(int i=0;i<SUDOKU_AREA; i+=1) {
+        for (int i = 0; i < SUDOKU_AREA; i += 1) {
             areaModelList.add(new AreaModel());
         }
 
@@ -111,7 +119,7 @@ public class MainActivity extends AppCompatActivity
             areaCount = (col == 0 && row == 0) ? areaCount + 1 : areaCount;
         }
         // Gridレイアウトにタグを設定し、後で判別可能に
-        for(int i=0;i<sudokuAreaList.size();i+=1) {
+        for (int i = 0; i < sudokuAreaList.size(); i += 1) {
             sudokuAreaList.get(i).setTag(i);
             areaModelList.get(i).setTag(i);
         }
@@ -121,7 +129,7 @@ public class MainActivity extends AppCompatActivity
             R.id.left_middle, R.id.middle_middle, R.id.right_middle,
             R.id.left_bottom, R.id.middle_bottom, R.id.right_bottom})
     void layoutsClicked(View v) {
-        if(transaction != null && !transaction.isEmpty()) return;
+        if (transaction != null && !transaction.isEmpty()) return;
 
         fragment = AreaFragment.newInstance(areaModelList.get(
                 Integer.parseInt(v.getTag().toString())));
@@ -134,9 +142,13 @@ public class MainActivity extends AppCompatActivity
     @Click(R.id.calc_button)
     void calcButtonClicked() {
         List<List<Integer>> sudokuList = convertList(areaModelList);
+        if (isIlligaleList(sudokuList)) {
+            Toast.makeText(this, "数字の並びにルール違反があります", Toast.LENGTH_LONG).show();
+            return;
+        }
         List<List<Integer>> solvedList = SudokuLogic.solve(sudokuList);
         List<AreaModel> solvedModel = convertModel(solvedList);
-        for(AreaModel model : solvedModel) {
+        for (AreaModel model : solvedModel) {
             setModeltoUI(model);
         }
     }
@@ -188,6 +200,16 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onClickSubmitButton(AreaModel areaModel) {
+        // areaModelの値の整合性チェックを行う(1が2つ無いか等)
+        List<Integer> tmp = new ArrayList<>();
+        for(String s : areaModel.getList()) {
+            tmp.add(s.isEmpty() ? 0 : Integer.parseInt(s));
+        }
+        if(isIlligaleListInList(tmp)) {
+            Toast.makeText(this, "重複した値があります", Toast.LENGTH_LONG).show();
+            return;
+        }
+
         getFragmentManager().popBackStack();
         calcButton.setVisibility(View.VISIBLE);
         transaction = null;
@@ -197,29 +219,29 @@ public class MainActivity extends AppCompatActivity
     private void setModeltoUI(AreaModel model) {
         areaModelList.set(model.getTag(), model);
         List<String> tmp = model.getList();
-        for(int i=model.getTag() * SUDOKU_AREA,j=0; i < (model.getTag() + 1)*SUDOKU_AREA;i+=1,j+=1) {
+        for (int i = model.getTag() * SUDOKU_AREA, j = 0; i < (model.getTag() + 1) * SUDOKU_AREA; i += 1, j += 1) {
             sudokuList.get(i).setText(tmp.get(j));
         }
     }
 
     public static List<List<Integer>> convertList(List<AreaModel> modelList) {
         List<List<Integer>> retVal = new ArrayList<>();
-        for(int i=0;i<SUDOKU_COL;i+=1) {
+        for (int i = 0; i < SUDOKU_COL; i += 1) {
             retVal.add(new ArrayList<Integer>());
         }
 
         // modelListから9*9のリストに変換する
-        for(int i=0;i<modelList.size();i+=1) {
+        for (int i = 0; i < modelList.size(); i += 1) {
             int colHead = i / 3 * 3;
             List<String> tmpList = modelList.get(i).getList();
 
             // List<String>からList<Integer>に変換する
             List<Integer> tmpIntegerList = new ArrayList<>();
-            for(String s : tmpList) {
+            for (String s : tmpList) {
                 tmpIntegerList.add(s.isEmpty() ? 0 : Integer.parseInt(s));
             }
 
-            for(int j=0;j<tmpIntegerList.size();j+=1) {
+            for (int j = 0; j < tmpIntegerList.size(); j += 1) {
                 int col = colHead + j / 3;
                 retVal.get(col).add(tmpIntegerList.get(j));
             }
@@ -231,18 +253,58 @@ public class MainActivity extends AppCompatActivity
         List<AreaModel> retVal = new ArrayList<>();
         List<List<Integer>> tmpList = SudokuLogic.extractAreaList(intList);
         List<List<String>> stringList = new ArrayList<>();
-        for(int i=0;i<SUDOKU_AREA;i+=1) {
+        for (int i = 0; i < SUDOKU_AREA; i += 1) {
             stringList.add(new ArrayList<String>());
         }
-        for(int i=0;i<stringList.size();i+=1) {
+        for (int i = 0; i < stringList.size(); i += 1) {
             List<Integer> tmp = tmpList.get(i);
-            for(int j=0;j<tmp.size();j+=1) {
+            for (int j = 0; j < tmp.size(); j += 1) {
                 stringList.get(i).add(tmp.get(j).toString());
             }
         }
-        for(int i=0;i<SUDOKU_AREA;i+=1) {
+        for (int i = 0; i < SUDOKU_AREA; i += 1) {
             retVal.add(new AreaModel(i, stringList.get(i)));
         }
         return retVal;
     }
+
+    private boolean isIlligaleList(List<List<Integer>> sudokuList) {
+        // rowをサーチして決定している値を削除する
+        for (int i = 0; i < 9; i += 1) {
+            if (isIlligaleListInList(sudokuList.get(i))) return true;
+        }
+        // colをサーチして決定している値を削除する
+        for (int i = 0; i < 9; i += 1) {
+            List<Integer> tmp = new ArrayList<>();
+            for (List<Integer> list : sudokuList) {
+                tmp.add(list.get(i));
+            }
+            if (isIlligaleListInList(tmp)) return true;
+        }
+
+        // Areaをサーチして決定している値を削除する
+        for (int i = 0; i < 9; i += 1) {
+            List<Integer> tmp = new ArrayList<>();
+            int colHead = i % 3 * 3;
+            int rowHead = i / 3 * 3;
+            for (int j = 0; j < 9; j += 1) {
+                int col = colHead + j % 3;
+                int row = rowHead + j / 3;
+                tmp.add(sudokuList.get(row).get(col));
+            }
+            if (isIlligaleListInList(tmp)) return true;
+        }
+        return false;
+    }
+
+    private boolean isIlligaleListInList(List<Integer> intList) {
+        List<Integer> collectList = new ArrayList<>();
+        for(int val : intList) {
+            if (val != 0 && collectList.contains(val)) return true;
+            collectList.add(val);
+        }
+        return false;
+    }
+
+
 }

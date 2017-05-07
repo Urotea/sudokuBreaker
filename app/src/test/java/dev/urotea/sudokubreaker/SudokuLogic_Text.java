@@ -66,4 +66,20 @@ public class SudokuLogic_Text {
         SudokuLogic.removeDetectedNum(testData);
         assertThat(testData.get(8).getDetectedNum(), is(9));
     }
+
+    @Test
+    public void detectOnlyoneNumテスト() {
+        List<SudokuSolverModel> testData = new ArrayList<>();
+        for(int i=0;i<9;i+=1) {
+            testData.add(new SudokuSolverModel());
+        }
+        for(int i=1;i<8;i+=1) {
+            testData.get(i-1).detectNum(i);
+        }
+        testData.get(7).removeNum(9);// testData[7] == [1,2,3,4,5,6,7,8]
+        testData.get(8).removeNum(8);// testData[8] == [1,2,3,4,5,6,7,9]
+        SudokuLogic.detectOnlyoneNum(testData);
+        assertThat(testData.get(7).getDetectedNum(), is(8));
+        assertThat(testData.get(8).getDetectedNum(), is(9));
+    }
 }
